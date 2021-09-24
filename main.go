@@ -49,6 +49,18 @@ func createNewMusic(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(music)
 }
 
+func deleteMusic(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+  key := vars["id"]
+  fmt.Println("sex")
+
+  for index, music := range Musics {
+  	if music.Id == key {
+  		Musics = append(Musics[:index], Musics[index+1:]...)
+  	}
+  }
+}
+
 
 func main() {
 	Musics = []Music{
@@ -62,7 +74,10 @@ func main() {
   myRouter.HandleFunc("/all", returnAllMusics)
 
   myRouter.HandleFunc("/music", createNewMusic).Methods("POST")
+
+  myRouter.HandleFunc("/music/{id}", deleteMusic).Methods("DELETE")
   myRouter.HandleFunc("/music/{id}", returnSingleMusic)
+  
   log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
