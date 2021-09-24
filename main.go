@@ -6,6 +6,7 @@ import (
 	"log"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 )
 
 type Music struct {
@@ -36,6 +37,18 @@ func returnSingleMusic(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func createNewMusic(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	fmt.Fprint(w, reqBody)
+
+	var music Music
+	json.Unmarshal(reqBody, &music)
+
+	Musics = append(Musics, music)
+
+	json.NewEncoder(w).Encode(music)
+}
+
 
 func main() {
 	Musics = []Music{
@@ -47,6 +60,11 @@ func main() {
 
   myRouter.HandleFunc("/", hello)
   myRouter.HandleFunc("/all", returnAllMusics)
+
+  myRouter.HandleFunc("/music", createNewMusic).Methods("POST")
   myRouter.HandleFunc("/music/{id}", returnSingleMusic)
   log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
+
+
+
