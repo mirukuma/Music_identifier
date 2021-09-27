@@ -39,7 +39,6 @@ func returnSingleMusic(w http.ResponseWriter, r *http.Request) {
 
 func createNewMusic(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	fmt.Fprint(w, reqBody)
 
 	var music Music
 	json.Unmarshal(reqBody, &music)
@@ -52,11 +51,26 @@ func createNewMusic(w http.ResponseWriter, r *http.Request) {
 func deleteMusic(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
   key := vars["id"]
-  fmt.Println("sex")
 
   for index, music := range Musics {
   	if music.Id == key {
   		Musics = append(Musics[:index], Musics[index+1:]...)
+  	}
+  }
+}
+
+func updateMusic(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+
+	var new_music Music
+	json.Unmarshal(reqBody, &new_music)
+
+	vars := mux.Vars(r)
+  key := vars["id"]
+
+  for index, music := range Musics {
+  	if music.Id == key {
+  		Musics[index] = new_music
   	}
   }
 }
@@ -76,8 +90,9 @@ func main() {
   myRouter.HandleFunc("/music", createNewMusic).Methods("POST")
 
   myRouter.HandleFunc("/music/{id}", deleteMusic).Methods("DELETE")
+  myRouter.HandleFunc("/music/{id}", updateMusic).Methods("PUT")
   myRouter.HandleFunc("/music/{id}", returnSingleMusic)
-  
+
   log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
